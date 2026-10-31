@@ -32,7 +32,13 @@ def project_id(auth_headers):
     response = client.post(
         "/api/projects",
         headers=auth_headers,
-        json={"name": "Member Test Project"}
+        json={
+            "name": "Member Test Project",
+            "business_requirement_owner": "admin@superspec.com",
+            "data_dictionary_owner": "admin@superspec.com",
+            "user_story_owner": "admin@superspec.com",
+            "requirement_sign_off_owner": "admin@superspec.com",
+        }
     )
     return response.json()["id"]
 
@@ -43,8 +49,13 @@ def test_project_creator_added_as_members(auth_headers, project_id):
     )
     assert response.status_code == 200
     members = response.json()
-    assert len(members) == 1
-    assert members[0]["role"] == "PROJECT_ADMIN"
+    assert len(members) == 5
+    roles = {m["role"] for m in members}
+    assert "PROJECT_ADMIN" in roles
+    assert "BUSINESS_REQUIREMENT_OWNER" in roles
+    assert "DATA_DICTIONARY_OWNER" in roles
+    assert "USER_STORY_OWNER" in roles
+    assert "REQUIREMENT_SIGN_OFF_OWNER" in roles
 
 def test_add_project_member(auth_headers, project_id, secondary_user):
     # Add member
@@ -58,11 +69,11 @@ def test_add_project_member(auth_headers, project_id, secondary_user):
     assert data["email"] == secondary_user
     assert data["role"] == "REVIEWER"
     
-    # Try adding again (should fail with 409 due to unique constraint)
+    # Try adding again with same role (should fail with 409 due to unique constraint)
     response = client.post(
         f"/api/projects/{project_id}/members",
         headers=auth_headers,
-        json={"email": secondary_user, "role": "GATE_1_OWNER"}
+        json={"email": secondary_user, "role": "REVIEWER"}
     )
     assert response.status_code == 409
 
@@ -80,4 +91,4 @@ def test_add_project_member(auth_headers, project_id, secondary_user):
         headers=auth_headers
     )
     members = response.json()
-    assert len(members) == 1 # Only admin left
+    assert len(members) == 5 # Only admin roles left

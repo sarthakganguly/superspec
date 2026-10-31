@@ -7,29 +7,33 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (token) {
       localStorage.setItem("token", token);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      fetchUser();
+      axios.get("/api/auth/users/me")
+        .then((response) => {
+          if (isMounted) setUser(response.data);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch user", error);
+          if (isMounted) setToken(null);
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
     } else {
       localStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
       setUser(null);
       setLoading(false);
     }
-  }, [token]);
 
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get("/api/auth/users/me");
-      setUser(response.data);
-    } catch (error) {
-      console.error("Failed to fetch user", error);
-      setToken(null); // Invalid token
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   const login = (newToken: string) => {
     setToken(newToken);

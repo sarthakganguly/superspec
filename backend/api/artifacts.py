@@ -16,7 +16,7 @@ def update_data_dictionary(
     project_id: UUID,
     payload: DataDictionary,
     db: Session = Depends(get_db),
-    membership = Depends(RequireProjectRole(["GATE_2_OWNER"])),
+    membership = Depends(RequireProjectRole(["DATA_DICTIONARY_OWNER", "GATE_2_OWNER"])),
 ):
     """
     Upsert Data Dictionary (Gate 2) for a specific project.
@@ -50,7 +50,7 @@ def update_business_requirements(
     project_id: UUID,
     payload: BusinessRequirement,
     db: Session = Depends(get_db),
-    membership = Depends(RequireProjectRole(["GATE_1_OWNER"])),
+    membership = Depends(RequireProjectRole(["BUSINESS_REQUIREMENT_OWNER", "GATE_1_OWNER"])),
 ):
     """
     Upsert Business Requirements (Gate 1) for a specific project.
@@ -84,7 +84,7 @@ def update_user_stories(
     project_id: UUID,
     payload: UserStoriesGate,
     db: Session = Depends(get_db),
-    membership = Depends(RequireProjectRole(["GATE_3_OWNER"])),
+    membership = Depends(RequireProjectRole(["USER_STORY_OWNER", "GATE_3_OWNER"])),
 ):
     """
     Upsert User Stories (Gate 3) for a specific project.

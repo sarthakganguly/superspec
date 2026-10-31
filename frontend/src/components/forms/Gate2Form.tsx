@@ -32,7 +32,7 @@ export const Gate2Form = ({ projectId }: Gate2FormProps) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const { canEditGate, loading: roleLoading } = useProjectRole(projectId);
-  const canEdit = canEditGate("GATE_2_OWNER");
+  const canEdit = canEditGate("DATA_DICTIONARY_OWNER");
 
   useEffect(() => {
     const fetchArtifact = async () => {
@@ -140,7 +140,7 @@ export const Gate2Form = ({ projectId }: Gate2FormProps) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Gate 2: Data Dictionary</h2>
       
-      {!canEdit && <ReadOnlyBanner requiredRole="GATE_2_OWNER" />}
+      {!canEdit && <ReadOnlyBanner requiredRole="DATA_DICTIONARY_OWNER" />}
 
       {error && (
         <div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200 whitespace-pre-wrap">

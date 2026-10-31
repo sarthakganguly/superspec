@@ -26,11 +26,17 @@ SuperSpec's core philosophy is **cryptographic consensus**: before requirements 
 4. The backend API will be available at `http://localhost:8002`.
 5. API documentation (Swagger UI) is available at `http://localhost:8002/docs`.
 
-### Seed Data
+### Seed Data & Default Accounts
 The application will automatically run migrations and seed the database on startup.
-You can log in with the following default credentials:
-- **Email**: `admin@superspec.com`
-- **Password**: `admin`
+You can log in with any of the following default seeded accounts:
+
+| Email | Password | Global Role | Persona / Purpose |
+| :--- | :--- | :--- | :--- |
+| `admin@superspec.com` | `admin` | `ADMIN` | Platform Administrator (full project & system access) |
+| `product@superspec.com` | `password` | `USER` | Product Manager (Gate 1 Owner persona) |
+| `data@superspec.com` | `password` | `USER` | Data Architect (Gate 2 Owner persona) |
+| `qa@superspec.com` | `password` | `USER` | QA Engineer (Gate 3 Owner persona) |
+| `viewer@superspec.com` | `password` | `VIEWER` | Stakeholder / Read-only / Reviewer persona |
 
 ## Commands
 

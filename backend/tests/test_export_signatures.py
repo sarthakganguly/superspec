@@ -31,7 +31,17 @@ def auth_headers(test_users):
 
 def test_export_multi_signature(auth_headers):
     # Create project with admin2
-    r_proj = client.post("/api/projects", headers=auth_headers("admin2@superspec.com"), json={"name": "Multi Sig Project"})
+    r_proj = client.post(
+        "/api/projects",
+        headers=auth_headers("admin2@superspec.com"),
+        json={
+            "name": "Multi Sig Project",
+            "business_requirement_owner": "admin2@superspec.com",
+            "data_dictionary_owner": "admin2@superspec.com",
+            "user_story_owner": "admin2@superspec.com",
+            "requirement_sign_off_owner": "admin2@superspec.com",
+        }
+    )
     assert r_proj.status_code == 201
     project_id = r_proj.json()["id"]
 

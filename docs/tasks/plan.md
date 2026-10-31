@@ -65,6 +65,28 @@ A deterministic, Dockerized web application that allows cross-functional teams t
 - [x] Data is viewable by all, but editable only by assigned owners.
 - [x] Multi-sig consensus dynamically adapts to the size of the project team.
 
+### Phase 7: Upfront Gate Ownership & Descriptive Roles (Vertical Slice 7)
+- [x] Task 23: Global Admin User Provisioning API & UI
+- [x] Task 24: Descriptive Role Enums & Backend Upfront Ownership Assignment
+- [x] Task 25: Frontend Create Project Dialog with Mandatory 4-Owner Selection
+- [x] Task 26: Team Management Read-Only Immutability for Non-Admin Members
+- [x] Task 27: Gate Permission Updates & End-to-End Verification
+
+### Checkpoint: Full Upfront Ownership & Governance
+- [x] Project creation mandates assigning Business Requirement, Data Dictionary, User Story, and Requirement Sign-off owners.
+- [x] Non-admin project members cannot alter owners; Team Management is read-only for regular members.
+- [x] Descriptive role nomenclature is active throughout API, schemas, and UI.
+
+### Phase 8: Global User Administration & Deletion (Vertical Slice 8)
+- [x] Task 28: User Deletion & Listing API (`DELETE /api/auth/users/{user_id}` and `GET /api/auth/users` for Admin)
+- [x] Task 29: User Management UI Component & Dashboard Integration (`UserManagementDialog.tsx`)
+- [x] Task 30: End-to-End Safety Guards, Automated Test Suite & Ratchet Verification
+
+### Checkpoint: Global User Administration
+- [x] Global Admins have a dedicated User Management feature to inspect, search, add, and delete users.
+- [x] Admin self-deletion and deletion of users with baseline cryptographic sign-offs are blocked.
+- [x] All test suites pass 100% and oxlint warnings remain ratcheted $\le 5$.
+
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|

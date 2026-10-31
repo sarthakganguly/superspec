@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 from uuid import UUID
 from datetime import datetime
@@ -6,8 +6,8 @@ from datetime import datetime
 class BusinessRequirement(BaseModel):
     problem_statement: str = Field(..., min_length=10, description="The core problem this project solves")
     target_audience: str = Field(..., min_length=5)
-    success_metrics: List[str] = Field(..., min_items=1, description="List of KPIs or success metrics")
-    in_scope: List[str] = Field(..., min_items=1)
+    success_metrics: List[str] = Field(..., min_length=1, description="List of KPIs or success metrics")
+    in_scope: List[str] = Field(..., min_length=1)
     out_of_scope: List[str] = Field(default_factory=list)
 
 class EntityAttribute(BaseModel):
@@ -18,7 +18,7 @@ class EntityAttribute(BaseModel):
 
 class Entity(BaseModel):
     name: str = Field(..., min_length=1)
-    attributes: List[EntityAttribute] = Field(..., min_length=1) # Note: using min_length instead of min_items as recommended by Pydantic V2
+    attributes: List[EntityAttribute] = Field(..., min_length=1)
 
 class DataDictionary(BaseModel):
     entities: List[Entity] = Field(..., min_length=1, description="List of domain entities")
@@ -40,6 +40,4 @@ class ArtifactResponse(BaseModel):
     artifact_type: str
     content: dict
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -12,7 +12,7 @@ All gate artifacts are stored in the PostgreSQL `artifacts` table using `JSONB` 
 
 ## Gate 1: Business Requirements
 - **Artifact Type**: `business-requirements`
-- **Authorized Roles**: `GATE_1_OWNER`, `PROJECT_ADMIN`
+- **Authorized Roles**: `BUSINESS_REQUIREMENT_OWNER` (`GATE_1_OWNER`), `PROJECT_ADMIN`
 - **Endpoint**: `PUT /api/projects/{id}/artifacts/business-requirements`
 
 ### Validation Schema
@@ -50,7 +50,7 @@ All gate artifacts are stored in the PostgreSQL `artifacts` table using `JSONB` 
 
 ## Gate 2: Data Dictionary
 - **Artifact Type**: `data-dictionary`
-- **Authorized Roles**: `GATE_2_OWNER`, `PROJECT_ADMIN`
+- **Authorized Roles**: `DATA_DICTIONARY_OWNER` (`GATE_2_OWNER`), `PROJECT_ADMIN`
 - **Endpoint**: `PUT /api/projects/{id}/artifacts/data-dictionary`
 
 ### Validation Schema
@@ -84,7 +84,7 @@ All gate artifacts are stored in the PostgreSQL `artifacts` table using `JSONB` 
 
 ## Gate 3: User Stories (BDD / Gherkin)
 - **Artifact Type**: `user-stories`
-- **Authorized Roles**: `GATE_3_OWNER`, `PROJECT_ADMIN`
+- **Authorized Roles**: `USER_STORY_OWNER` (`GATE_3_OWNER`), `PROJECT_ADMIN`
 - **Endpoint**: `PUT /api/projects/{id}/artifacts/user-stories`
 
 ### Validation Schema

@@ -4,10 +4,17 @@ from typing import List
 from uuid import UUID
 
 from database import get_db
-from models.project import Project
-from schemas.project import ProjectCreate, ProjectResponse
+from models.project import Project, Artifact, ProjectMember
+from models.signoff import Signoff
+from schemas.project import (
+    ProjectCreate,
+    ProjectResponse,
+    BulkDeleteProjectsRequest,
+    BulkDeleteProjectsResponse,
+    ProjectRole,
+)
 from models.user import User
-from api.auth import get_current_user
+from api.auth import get_current_user, RequireProjectRole
 
 router = APIRouter()
 
@@ -19,7 +26,26 @@ def create_project(
 ):
     """
     Create a new project.
+    Validates that all 4 required owners exist in the users registry and assigns them.
+    Creator is assigned PROJECT_ADMIN.
     """
+    owner_inputs = [
+        ("Business Requirement Owner", project_in.business_requirement_owner.strip().lower(), ProjectRole.BUSINESS_REQUIREMENT_OWNER.value),
+        ("Data Dictionary Owner", project_in.data_dictionary_owner.strip().lower(), ProjectRole.DATA_DICTIONARY_OWNER.value),
+        ("User Story Owner", project_in.user_story_owner.strip().lower(), ProjectRole.USER_STORY_OWNER.value),
+        ("Requirement Sign-off Owner", project_in.requirement_sign_off_owner.strip().lower(), ProjectRole.REQUIREMENT_SIGN_OFF_OWNER.value),
+    ]
+
+    resolved_owners = []
+    for role_label, email, role_enum_value in owner_inputs:
+        user = db.query(User).filter(User.email.ilike(email)).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with email '{email}' not found for {role_label}",
+            )
+        resolved_owners.append((user.id, role_enum_value))
+
     project = Project(
         name=project_in.name,
         description=project_in.description,
@@ -27,15 +53,19 @@ def create_project(
     db.add(project)
     db.commit()
     db.refresh(project)
-    
-    # Add creator as PROJECT_ADMIN by default
-    from models.project import ProjectMember
-    from schemas.project import ProjectRole
-    db.add(ProjectMember(
-        project_id=project.id,
-        user_id=current_user.id,
-        role=ProjectRole.PROJECT_ADMIN.value
-    ))
+
+    # Add creator as PROJECT_ADMIN and add the 4 owner roles
+    assignments = [(current_user.id, ProjectRole.PROJECT_ADMIN.value)] + resolved_owners
+    seen = set()
+    for user_id, role_value in assignments:
+        pair = (user_id, role_value)
+        if pair not in seen:
+            seen.add(pair)
+            db.add(ProjectMember(
+                project_id=project.id,
+                user_id=user_id,
+                role=role_value
+            ))
     db.commit()
 
     return project
@@ -56,6 +86,52 @@ def get_projects(
         from models.project import ProjectMember
         projects = db.query(Project).join(ProjectMember).filter(ProjectMember.user_id == current_user.id).offset(skip).limit(limit).all()
     return projects
+
+@router.post("/bulk-delete", response_model=BulkDeleteProjectsResponse)
+def bulk_delete_projects(
+    payload: BulkDeleteProjectsRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Bulk delete projects and all associated artifacts, members, and signoffs.
+    Requires global ADMIN or PROJECT_ADMIN on all target projects.
+    """
+    if not payload.project_ids:
+        return BulkDeleteProjectsResponse(deleted_count=0, deleted_ids=[])
+
+    if current_user.role != "ADMIN":
+        admin_members = (
+            db.query(ProjectMember.project_id)
+            .filter(
+                ProjectMember.project_id.in_(payload.project_ids),
+                ProjectMember.user_id == current_user.id,
+                ProjectMember.role == ProjectRole.PROJECT_ADMIN.value,
+            )
+            .all()
+        )
+        allowed_ids = {m[0] for m in admin_members}
+        disallowed = [pid for pid in payload.project_ids if pid not in allowed_ids]
+        if disallowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Requires PROJECT_ADMIN role for all requested projects",
+            )
+
+    existing_projects = db.query(Project).filter(Project.id.in_(payload.project_ids)).all()
+    existing_ids = [p.id for p in existing_projects]
+
+    if existing_ids:
+        db.query(Signoff).filter(Signoff.project_id.in_(existing_ids)).delete(synchronize_session=False)
+        db.query(Artifact).filter(Artifact.project_id.in_(existing_ids)).delete(synchronize_session=False)
+        db.query(ProjectMember).filter(ProjectMember.project_id.in_(existing_ids)).delete(synchronize_session=False)
+        db.query(Project).filter(Project.id.in_(existing_ids)).delete(synchronize_session=False)
+        db.commit()
+
+    return BulkDeleteProjectsResponse(
+        deleted_count=len(existing_ids),
+        deleted_ids=existing_ids,
+    )
 
 @router.get("/{project_id}", response_model=ProjectResponse)
 def get_project(
@@ -78,6 +154,31 @@ def get_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_project(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole(["PROJECT_ADMIN"])),
+):
+    """
+    Delete a project and all associated artifacts, members, and signoffs.
+    Requires PROJECT_ADMIN or global ADMIN.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    from models.signoff import Signoff
+    from models.project import Artifact, ProjectMember
+
+    db.query(Signoff).filter(Signoff.project_id == project_id).delete()
+    db.query(Artifact).filter(Artifact.project_id == project_id).delete()
+    db.query(ProjectMember).filter(ProjectMember.project_id == project_id).delete()
+    db.delete(project)
+    db.commit()
+    return None
 
 from schemas.project import ProjectMemberCreate, ProjectMemberResponse
 from models.project import ProjectMember

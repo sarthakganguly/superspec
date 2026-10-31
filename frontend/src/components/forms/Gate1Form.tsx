@@ -21,7 +21,7 @@ export const Gate1Form = ({ projectId }: Gate1FormProps) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const { canEditGate, loading: roleLoading } = useProjectRole(projectId);
-  const canEdit = canEditGate("GATE_1_OWNER");
+  const canEdit = canEditGate("BUSINESS_REQUIREMENT_OWNER");
 
   useEffect(() => {
     const fetchArtifact = async () => {
@@ -151,7 +151,7 @@ export const Gate1Form = ({ projectId }: Gate1FormProps) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Gate 1: Business Requirements</h2>
       
-      {!canEdit && <ReadOnlyBanner requiredRole="GATE_1_OWNER" />}
+      {!canEdit && <ReadOnlyBanner requiredRole="BUSINESS_REQUIREMENT_OWNER" />}
 
       {error && (
         <div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200 whitespace-pre-wrap">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { AlertTriangle, CheckCircle, Link as LinkIcon, RefreshCcw } from "lucide-react";
 
@@ -19,31 +19,25 @@ interface TraceabilityData {
 
 export const TraceabilityReport = ({ projectId }: TraceabilityProps) => {
   const [report, setReport] = useState<TraceabilityData | null>(null);
-  const [isSignedOff, setIsSignedOff] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReport = async () => {
-    setLoading(true);
+  const fetchReport = useCallback(async () => {
     try {
-      const [reportRes, signoffRes] = await Promise.all([
-        axios.get(`/api/projects/${projectId}/traceability`),
-        axios.get(`/api/projects/${projectId}/signoffs`)
-      ]);
+      const reportRes = await axios.get(`/api/projects/${projectId}/traceability`);
       setReport(reportRes.data);
-      const signoffs = signoffRes.data;
-      setIsSignedOff(signoffs.some((s: any) => s.gate_name === "Traceability"));
       setError(null);
     } catch (err: any) {
+      console.error("Failed to fetch traceability report", err);
       setError("Failed to fetch traceability report.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
     fetchReport();
-  }, [projectId]);
+  }, [fetchReport]);
 
   if (loading) return <div className="p-8 text-center text-gray-500">Running traceability analysis...</div>;
   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;

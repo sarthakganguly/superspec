@@ -23,7 +23,12 @@
 - [x] Alembic migration creates a `users` table.
 - [x] `POST /api/auth/login` accepts email/password and returns a JWT.
 - [x] `GET /api/users/me` returns the current user profile, protected by a JWT middleware.
-- [x] A seed script exists to create a default Admin user.
+- [x] A seed script (`backend/seed.py`) creates default users with credentials:
+  - `admin@superspec.com` (password: `admin`, role: `ADMIN`)
+  - `product@superspec.com` (password: `password`, role: `USER`)
+  - `data@superspec.com` (password: `password`, role: `USER`)
+  - `qa@superspec.com` (password: `password`, role: `USER`)
+  - `viewer@superspec.com` (password: `password`, role: `VIEWER`)
 **Verification:**
 - [x] Tests pass: Write Pytest for login success and failure.
 - [x] Build succeeds: Run alembic upgrade head successfully.
@@ -296,11 +301,12 @@
 ### Task 20: Frontend Team Management UI
 **Description:** Build a "Team" tab in the Project Detail view to invite users and assign roles.
 **Acceptance criteria:**
-- [x] New "Team" view added to the Gate Stepper or Project Header.
+- [x] New "Team" view added to the Project Detail view alongside "Project Gates", retaining persistent Gate Stepper visibility above both tabs for project-level context.
 - [x] Displays a table/list of current project members and their roles.
 - [x] Layout is responsive: data table on desktop, card list on mobile.
 - [x] Meaningful empty/default state rendered if the team only contains the creator.
 - [x] Form to add a new member by email address and select their role from a dropdown.
+- [x] Auto-suggests matching registered users when typing 3+ characters and prevents duplicate additions.
 - [x] Uses inline loading states for form submission (no full-page spinners).
 **Verification:**
 - [x] Manual check: Add a user via the UI and see them appear in the member list.
@@ -349,3 +355,162 @@
 ### Checkpoint: Enterprise Project Teams
 - [x] Users have strict, project-specific ownership boundaries.
 - [x] Multi-sig consensus dynamically adapts to the size of the project team.
+
+## Phase 7: Upfront Gate Ownership & Descriptive Roles (Vertical Slice 7)
+
+### Task 23: Global Admin User Provisioning API & UI
+**Description:** Implement user creation capabilities restricted to Global Administrators (`ADMIN`) so new users can be provisioned directly without seed scripts or direct database access.
+**Acceptance criteria:**
+- [x] Backend endpoint `POST /api/auth/users` accepting email, password (min 6 chars), and role (`ADMIN`, `USER`, `VIEWER`).
+- [x] Strict authorization check: only callers with global role `ADMIN` can access `POST /api/auth/users`; non-admins receive 403 Forbidden.
+- [x] Duplicate email detection returns 400 Bad Request with a clear message.
+- [x] Passwords hashed securely using `get_password_hash`.
+- [x] Frontend header/dashboard renders an "+ Add User" modal trigger visible exclusively to users with `user.role === 'ADMIN'`.
+- [x] Modal dialog includes client-side validation, role selection, inline loading, and error banners.
+- [x] Unit tests in `backend/tests/test_auth.py` verifying admin creation, duplicate protection, and non-admin forbidden status.
+**Dependencies:** None
+**Files likely touched:**
+- `backend/api/auth.py`
+- `backend/schemas/user.py`
+- `backend/tests/test_auth.py`
+- `frontend/src/components/CreateUserDialog.tsx`
+- `frontend/src/pages/Dashboard.tsx`
+**Estimated scope:** Medium
+
+### Task 24: Descriptive Role Enums & Backend Upfront Ownership Assignment
+**Description:** Update role definitions to descriptive titles and enforce assigning all 4 active owners during project creation.
+**Acceptance criteria:**
+- [x] `ProjectRole` enum in `backend/schemas/project.py` includes `BUSINESS_REQUIREMENT_OWNER`, `DATA_DICTIONARY_OWNER`, `USER_STORY_OWNER`, and `REQUIREMENT_SIGN_OFF_OWNER` (with backward compatibility aliases).
+- [x] `ProjectCreate` schema requires:
+  - `business_requirement_owner`: valid email of an existing user
+  - `data_dictionary_owner`: valid email of an existing user
+  - `user_story_owner`: valid email of an existing user
+  - `requirement_sign_off_owner`: valid email of an existing user
+- [x] `POST /api/projects` validates all 4 users exist in `users` table; rejects with 400/404 if any user does not exist.
+- [x] `create_project` creates `project_members` records for each owner role, plus assigns `PROJECT_ADMIN` to the creator.
+- [x] Gate 4 (Traceability) remains automated with no required owner role.
+**Dependencies:** Task 23
+**Files likely touched:**
+- `backend/schemas/project.py`
+- `backend/api/projects.py`
+- `backend/tests/test_projects.py`
+**Estimated scope:** Medium
+
+### Task 25: Frontend Create Project Dialog with Mandatory 4-Owner Selection
+**Description:** Upgrade the project creation dialog to enforce selecting all 4 gate owners with existing user search/auto-suggest.
+**Acceptance criteria:**
+- [x] `CreateProjectDialog.tsx` displays inputs for all 4 required owners:
+  - Business Requirement Owner (Gate 1)
+  - Data Dictionary Owner (Gate 2)
+  - User Story Owner (Gate 3)
+  - Requirement Sign-off Owner (Gate 5)
+- [x] Each owner input integrates 3-character user auto-suggest querying `/api/auth/users?q=...`.
+- [x] A single user can be assigned to multiple owner roles (supporting solo or small teams).
+- [x] "Create Project" button is disabled until all 4 owners are populated with valid emails.
+- [x] Displays inline error messages if validation fails.
+**Dependencies:** Task 24
+**Files likely touched:**
+- `frontend/src/components/CreateProjectDialog.tsx`
+- `frontend/src/pages/Dashboard.tsx`
+**Estimated scope:** Medium
+
+### Task 26: Team Management Read-Only Immutability for Non-Admin Members
+**Description:** Restrict team management operations to Project Admins and Global Admins, displaying a read-only roster for regular team members.
+**Acceptance criteria:**
+- [x] `TeamManagement.tsx` uses `useProjectRole` to check for `PROJECT_ADMIN` role or global `ADMIN`.
+- [x] Non-admin members (`BUSINESS_REQUIREMENT_OWNER`, `DATA_DICTIONARY_OWNER`, `USER_STORY_OWNER`, `REQUIREMENT_SIGN_OFF_OWNER`, `REVIEWER`) see a read-only team table.
+- [x] "Add Member" form and "Remove" action buttons are hidden for non-admin members.
+- [x] Displays an explanatory banner: "Only Project Admins can modify team assignments."
+- [x] Backend API (`POST /api/projects/{id}/members`, `DELETE /api/projects/{id}/members/{user_id}`) rejects non-admin attempts with 403 Forbidden.
+**Dependencies:** Task 20, Task 24
+**Files likely touched:**
+- `frontend/src/components/TeamManagement.tsx`
+- `backend/api/projects.py`
+**Estimated scope:** Small
+
+### Task 27: Gate Permission Updates & End-to-End Verification
+**Description:** Wire all gate forms and sign-off handlers to the new descriptive role definitions and verify the end-to-end workflow.
+**Acceptance criteria:**
+- [x] `useProjectRole.ts` checks permissions against `BUSINESS_REQUIREMENT_OWNER`, `DATA_DICTIONARY_OWNER`, `USER_STORY_OWNER`, and `REQUIREMENT_SIGN_OFF_OWNER`.
+- [x] Role badges across all views use descriptive labels:
+  - "Business Requirement Owner"
+  - "Data Dictionary Owner"
+  - "User Story Owner"
+  - "Requirement Sign-off Owner"
+  - "Project Admin"
+  - "Reviewer"
+- [x] Backend tests updated and passing (100% pass rate).
+- [x] Frontend build and lint passing with zero errors.
+**Dependencies:** Task 24, Task 25, Task 26
+**Files likely touched:**
+- `frontend/src/hooks/useProjectRole.ts`
+- `frontend/src/components/forms/Gate1Form.tsx`
+- `frontend/src/components/forms/Gate2Form.tsx`
+- `frontend/src/components/forms/Gate3Form.tsx`
+- `frontend/src/components/Gate5Signoff.tsx`
+- `backend/api/artifacts.py`
+- `backend/api/signoff.py`
+**Estimated scope:** Medium
+
+### Checkpoint: Full Upfront Ownership & Governance
+- [x] Projects cannot be created without all 4 owners assigned.
+- [x] Non-admins cannot alter team assignments.
+- [x] Descriptive role nomenclature is active throughout the entire application.
+
+---
+
+## Phase 8: Global User Administration & Deletion (Vertical Slice 8)
+
+### Task 28: User Deletion & Listing API
+**Description:** Add `DELETE /api/auth/users/{user_id}` and upgrade `GET /api/auth/users` to return all registered users when called by Global Admins without a query string.
+**Acceptance criteria:**
+- [x] `GET /api/auth/users` returns all registered users when called by an `ADMIN` (omitting query string or empty `q`).
+- [x] Non-admin callers calling `GET /api/auth/users` with an empty `q` continue to receive `[]`.
+- [x] `DELETE /api/auth/users/{user_id}` allows Global Admin to delete a user.
+- [x] Attempting to delete one's own administrator account returns `400 Bad Request` (`"Cannot delete your own administrator account"`).
+- [x] Attempting to delete a user who has recorded cryptographic sign-offs returns `400 Bad Request` (`"Cannot delete user who has recorded cryptographic sign-offs in project baselines"`).
+- [x] Deleting a non-existent UUID returns `404 Not Found`.
+- [x] Non-admin callers receive `403 Forbidden`.
+- [x] Associated `project_members` entries are cleaned up upon deletion.
+- [x] Unit tests added to `backend/tests/test_auth.py` covering all success and failure paths.
+**Dependencies:** Task 23
+**Files likely touched:**
+- `backend/api/auth.py`
+- `backend/tests/test_auth.py`
+**Estimated scope:** Medium
+
+### Task 29: User Management UI Component & Dashboard Integration
+**Description:** Build a comprehensive `UserManagementDialog.tsx` that replaces the simple "+ Add User" button with a full user management modal.
+**Acceptance criteria:**
+- [x] Dashboard toolbar shows a "Manage Users" button (with user icon) for `ADMIN` users instead of a simple "+ Add User" button.
+- [x] `UserManagementDialog.tsx` renders:
+  - Header with title, user count badge, search filter, and "+ Add User" button.
+  - Table of all registered users: Email, Global Role badge (`ADMIN`, `USER`, `VIEWER`), and Delete action.
+  - "You" pill displayed on the current admin's row; delete action disabled/hidden for self.
+  - Delete button triggers a confirmation dialog and displays inline error alerts if deletion fails.
+  - Integration with user creation: adding a user seamlessly refreshes the roster table.
+- [x] Read-only or hidden for non-admin users.
+**Dependencies:** Task 28
+**Files likely touched:**
+- `frontend/src/components/UserManagementDialog.tsx`
+- `frontend/src/pages/Dashboard.tsx`
+**Estimated scope:** Medium
+
+### Task 30: End-to-End Safety Guards, Automated Test Suite & Ratchet Verification
+**Description:** Run all backend and frontend validation suites to ensure zero regressions, complete safety guard verification, and compliance with the ratchet rule.
+**Acceptance criteria:**
+- [x] Backend test suite achieves 100% pass rate (`docker compose exec backend python -m pytest`).
+- [x] Frontend type-checking and linting (`tsc -b && oxlint`) maintains 0 errors and $\le 5$ warnings.
+- [x] Production build (`npm run build`) completes successfully.
+**Dependencies:** Task 28, Task 29
+**Files likely touched:**
+- `backend/tests/test_auth.py`
+- `frontend/src/components/UserManagementDialog.tsx`
+- `docs/tasks/plan.md`
+- `docs/tasks/todo.md`
+**Estimated scope:** Small
+
+### Checkpoint: Global User Administration
+- [x] Global Admins have a dedicated User Management feature to inspect, search, add, and delete users.
+- [x] Admin self-deletion and deletion of users with baseline cryptographic sign-offs are blocked.
+- [x] All test suites pass 100% and oxlint warnings remain ratcheted $\le 5$.

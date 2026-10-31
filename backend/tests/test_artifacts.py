@@ -18,7 +18,14 @@ def project_id(auth_headers):
     response = client.post(
         "/api/projects",
         headers=auth_headers,
-        json={"name": "Artifact Test Project", "description": "Testing artifacts"}
+        json={
+            "name": "Artifact Test Project",
+            "description": "Testing artifacts",
+            "business_requirement_owner": "admin@superspec.com",
+            "data_dictionary_owner": "admin@superspec.com",
+            "user_story_owner": "admin@superspec.com",
+            "requirement_sign_off_owner": "admin@superspec.com",
+        }
     )
     return response.json()["id"]
 

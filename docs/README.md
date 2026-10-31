@@ -11,7 +11,8 @@ docs/
 ├── README.md                                  # Documentation index (this file)
 ├── requirements.md                            # Core problem statement, product direction, and validated MVP scope
 ├── specifications/
-│   └── gate-schemas.md                        # Gate 1-3 Pydantic schemas, validation bounds, and JSON contracts
+│   ├── gate-schemas.md                        # Gate 1-3 Pydantic schemas, validation bounds, and JSON contracts
+│   └── user-management.md                     # Global Admin user provisioning API and UI contracts
 ├── decisions/                                 # Architecture Decision Records (ADRs)
 │   ├── 0001-architecture-stack.md            # FastAPI, React, PostgreSQL stack selection
 │   ├── 0002-traceability-signoffs.md          # RTM concept and cryptographic SHA-256 sign-offs
@@ -39,6 +40,8 @@ docs/
   - **Gate 2 (Data Dictionary)**: Domain entities and primitive typed attributes (`String`, `Integer`, `Float`, `Boolean`, `Date`, `DateTime`, `UUID`, `JSON`).
   - **Gate 3 (User Stories / BDD)**: Story point complexity ($1 \le \text{complexity} \le 13$) and Gherkin `GIVEN` / `WHEN` / `THEN` criteria.
   - **Cross-Referencing Rules**: Strict case-insensitive name matching between Gate 2 entities and Gate 3 stories.
+- **[`specifications/user-management.md`](specifications/user-management.md)**:
+  - Global Administrator user creation API (`POST /api/auth/users`), authorization guards, request/response contracts, and modal UI workflow.
 
 ---
 
@@ -58,7 +61,20 @@ The `docs/decisions/` directory records the context, trade-offs, and consequence
 
 ---
 
-## 5. Related Project Guidelines
+## 5. Default Seed Accounts
+The application database is seeded automatically on startup via `backend/seed.py`:
+
+| Email | Password | Global Role | Persona / Usage |
+| :--- | :--- | :--- | :--- |
+| `admin@superspec.com` | `admin` | `ADMIN` | Platform Administrator (full project & system access) |
+| `product@superspec.com` | `password` | `USER` | Product Manager (Gate 1 Owner persona) |
+| `data@superspec.com` | `password` | `USER` | Data Architect (Gate 2 Owner persona) |
+| `qa@superspec.com` | `password` | `USER` | QA Engineer (Gate 3 Owner persona) |
+| `viewer@superspec.com` | `password` | `VIEWER` | Stakeholder / Read-only / Reviewer persona |
+
+---
+
+## 6. Related Project Guidelines
 - **[`../CONSTRAINTS.md`](../CONSTRAINTS.md)**: Repository quality floor, numeric dimensions, ratchets, and exceptions.
 - **[`../AGENTS.md`](../AGENTS.md)**: Non-negotiable instructions for autonomous coding agents.
 - **[`../README.md`](../README.md)**: Quick start guide, Docker Compose commands, and service URLs.

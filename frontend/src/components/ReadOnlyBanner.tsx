@@ -5,9 +5,16 @@ export const ReadOnlyBanner = ({ requiredRole }: { requiredRole: string }) => {
 
   if (dismissed) return null;
 
-  const roleName = requiredRole === "GATE_1_OWNER" ? "Gate 1 Owner" :
-                   requiredRole === "GATE_2_OWNER" ? "Gate 2 Owner" :
-                   requiredRole === "GATE_3_OWNER" ? "Gate 3 Owner" : requiredRole;
+  const roleName =
+    requiredRole === "GATE_1_OWNER" || requiredRole === "BUSINESS_REQUIREMENT_OWNER"
+      ? "Business Requirement Owner"
+      : requiredRole === "GATE_2_OWNER" || requiredRole === "DATA_DICTIONARY_OWNER"
+      ? "Data Dictionary Owner"
+      : requiredRole === "GATE_3_OWNER" || requiredRole === "USER_STORY_OWNER"
+      ? "User Story Owner"
+      : requiredRole === "GATE_5_OWNER" || requiredRole === "REQUIREMENT_SIGN_OFF_OWNER"
+      ? "Requirement Sign-off Owner"
+      : requiredRole;
 
   return (
     <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md flex justify-between items-start" role="alert">

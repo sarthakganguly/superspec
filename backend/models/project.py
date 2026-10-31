@@ -38,7 +38,7 @@ class ProjectMember(Base):
     joined_at = Column(DateTime, default=datetime.utcnow)
 
     __table_args__ = (
-        UniqueConstraint('project_id', 'user_id', name='uq_project_member'),
+        UniqueConstraint('project_id', 'user_id', 'role', name='uq_project_member_role'),
     )
 
     project = relationship("Project", backref="members")

@@ -32,10 +32,10 @@ number and no command in this column is an aspiration, not a constraint.
 
 | Metric | Today | Direction |
 |--------|-------|-----------|
-| Backend Test Suite Size | 29 passing tests | must not fall |
+| Backend Test Suite Size | 42 passing tests | must not fall |
 | Frontend JS Bundle Size | 368 kB (113 kB gzipped) | must not grow (> 5% drift) |
 | Frontend CSS Bundle Size | 26.6 kB (5.7 kB gzipped) | must not grow |
-| Frontend Oxlint Warnings | 15 warnings | must not grow; ratcheted downwards |
+| Frontend Oxlint Warnings | 5 warnings | must not grow; ratcheted downwards |
 
 ## Exceptions
 

@@ -29,8 +29,8 @@ def download_export(
 
     from models.project import ProjectMember
     
-    # Verify that Traceability is signed off by all members
-    member_count = db.query(ProjectMember).filter(ProjectMember.project_id == project_id).count()
+    # Verify that Traceability is signed off by all members (distinct users)
+    member_count = db.query(ProjectMember.user_id).filter(ProjectMember.project_id == project_id).distinct().count()
     signoff_count = db.query(Signoff).filter(
         Signoff.project_id == project_id,
         Signoff.gate_name == "Traceability"

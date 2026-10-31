@@ -34,7 +34,17 @@ def auth_headers(test_users):
 @pytest.fixture
 def project_id(auth_headers):
     # admin creates the project
-    response = client.post("/api/projects", headers=auth_headers("admin@superspec.com"), json={"name": "Authz Test Project"})
+    response = client.post(
+        "/api/projects",
+        headers=auth_headers("admin@superspec.com"),
+        json={
+            "name": "Authz Test Project",
+            "business_requirement_owner": "gate1@superspec.com",
+            "data_dictionary_owner": "admin@superspec.com",
+            "user_story_owner": "admin@superspec.com",
+            "requirement_sign_off_owner": "admin@superspec.com",
+        }
+    )
     proj_id = response.json()["id"]
     
     # assign gate1@superspec.com as GATE_1_OWNER

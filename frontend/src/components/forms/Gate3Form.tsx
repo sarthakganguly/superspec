@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Plus, X, ListPlus } from "lucide-react";
+import { X, ListPlus } from "lucide-react";
 import { useProjectRole } from "../../hooks/useProjectRole";
 import { ReadOnlyBanner } from "../ReadOnlyBanner";
 
@@ -33,7 +33,7 @@ export const Gate3Form = ({ projectId }: Gate3FormProps) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const { canEditGate, loading: roleLoading } = useProjectRole(projectId);
-  const canEdit = canEditGate("GATE_3_OWNER");
+  const canEdit = canEditGate("USER_STORY_OWNER");
 
   useEffect(() => {
     const fetchArtifact = async () => {
@@ -126,7 +126,7 @@ export const Gate3Form = ({ projectId }: Gate3FormProps) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Gate 3: User Stories (BDD/Gherkin)</h2>
       
-      {!canEdit && <ReadOnlyBanner requiredRole="GATE_3_OWNER" />}
+      {!canEdit && <ReadOnlyBanner requiredRole="USER_STORY_OWNER" />}
 
       {error && (
         <div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200 whitespace-pre-wrap">
