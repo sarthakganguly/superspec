@@ -27,7 +27,7 @@ def test_get_projects():
     response = client.get("/api/projects", headers=headers)
     assert response.status_code == 200
     assert len(response.json()) >= 1
-    assert response.json()[0]["name"] == "Test Project"
+    assert any(p["name"] == "Test Project" for p in response.json())
 
 def test_get_project_by_id():
     headers = get_auth_headers()

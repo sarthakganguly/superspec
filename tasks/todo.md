@@ -5,11 +5,11 @@
 ### Task 1: Initialize Docker Compose Environment
 **Description:** Set up the basic monorepo structure and a `docker-compose.yml` that orchestrates PostgreSQL, a FastAPI backend, and a Vite/React frontend.
 **Acceptance criteria:**
-- [ ] `docker-compose up` starts Postgres, a Python container (FastAPI), and a Node container (Vite).
-- [ ] FastAPI serves a health check at `http://localhost:8000/health`.
-- [ ] React app is accessible at `http://localhost:3000`.
+- [x] `docker-compose up` starts Postgres, a Python container (FastAPI), and a Node container (Vite).
+- [x] FastAPI serves a health check at `http://localhost:8002/health` (`http://localhost:8000/health` container-internal).
+- [x] React app is accessible at `http://localhost:3002` (`http://localhost:3000` container-internal).
 **Verification:**
-- [ ] Manual check: Run `docker-compose up` and hit both URLs in the browser.
+- [x] Manual check: Run `docker-compose up` and hit both URLs in the browser.
 **Dependencies:** None
 **Files likely touched:**
 - `docker-compose.yml`
@@ -20,13 +20,13 @@
 ### Task 2: Database Schema & API for Local Auth
 **Description:** Configure SQLAlchemy/Alembic, create User models, and implement local JWT authentication endpoints.
 **Acceptance criteria:**
-- [ ] Alembic migration creates a `users` table.
-- [ ] `POST /api/auth/login` accepts email/password and returns a JWT.
-- [ ] `GET /api/users/me` returns the current user profile, protected by a JWT middleware.
-- [ ] A seed script exists to create a default Admin user.
+- [x] Alembic migration creates a `users` table.
+- [x] `POST /api/auth/login` accepts email/password and returns a JWT.
+- [x] `GET /api/users/me` returns the current user profile, protected by a JWT middleware.
+- [x] A seed script exists to create a default Admin user.
 **Verification:**
-- [ ] Tests pass: Write Pytest for login success and failure.
-- [ ] Build succeeds: Run alembic upgrade head successfully.
+- [x] Tests pass: Write Pytest for login success and failure.
+- [x] Build succeeds: Run alembic upgrade head successfully.
 **Dependencies:** Task 1
 **Files likely touched:**
 - `backend/models/user.py`
@@ -37,11 +37,11 @@
 ### Task 3: Frontend Auth UI & Protected Routing
 **Description:** Build the login page and setup protected routing in React using shadcn/ui.
 **Acceptance criteria:**
-- [ ] Login screen with email/password fields (using shadcn/ui Forms).
-- [ ] Successful login stores JWT and redirects to `/dashboard`.
-- [ ] Unauthenticated access to `/dashboard` redirects back to `/login`.
+- [x] Login screen with email/password fields (using shadcn/ui Forms).
+- [x] Successful login stores JWT and redirects to `/dashboard`.
+- [x] Unauthenticated access to `/dashboard` redirects back to `/login`.
 **Verification:**
-- [ ] Manual check: Run frontend, attempt to access `/dashboard` without auth, login, and verify redirection.
+- [x] Manual check: Run frontend, attempt to access `/dashboard` without auth, login, and verify redirection.
 **Dependencies:** Task 1, Task 2
 **Files likely touched:**
 - `frontend/src/pages/Login.tsx`
@@ -50,9 +50,9 @@
 **Estimated scope:** Medium
 
 ## Checkpoint: Foundation
-- [ ] `docker-compose up` boots entire stack cleanly.
-- [ ] Database is seeded.
-- [ ] User can log in via the React UI and see a protected placeholder dashboard.
+- [x] `docker-compose up` boots entire stack cleanly.
+- [x] Database is seeded.
+- [x] User can log in via the React UI and see a protected placeholder dashboard.
 
 ---
 
@@ -347,5 +347,5 @@
 **Estimated scope:** Large
 
 ### Checkpoint: Enterprise Project Teams
-- [ ] Users have strict, project-specific ownership boundaries.
-- [ ] Multi-sig consensus dynamically adapts to the size of the project team.
+- [x] Users have strict, project-specific ownership boundaries.
+- [x] Multi-sig consensus dynamically adapts to the size of the project team.

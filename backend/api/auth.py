@@ -78,6 +78,9 @@ class RequireProjectRole:
         self.allowed_roles = allowed_roles or []
         
     def __call__(self, project_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+        if current_user.role == "ADMIN":
+            return ProjectMember(project_id=project_id, user_id=current_user.id, role=ProjectRole.PROJECT_ADMIN.value)
+            
         member = db.query(ProjectMember).filter(
             ProjectMember.project_id == project_id,
             ProjectMember.user_id == current_user.id

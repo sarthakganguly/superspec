@@ -10,60 +10,60 @@ A deterministic, Dockerized web application that allows cross-functional teams t
 - **Frontend:** React (Vite) + TypeScript + TailwindCSS + shadcn/ui. Fast, accessible SPA served statically. Information-dense, monochrome enterprise UI.
 - **Auth:** Local admin-provisioned auth (JWT). 
 - **Extensibility:** Roles and Artifact Types will be extensible strings/configurations, not rigid hardcoded enums.
-- **Export Strategy:** Phase I will generate downloadable, structured files (ZIP/Markdown) containing the translated action items.
+- **Export Strategy:** Phase I generates downloadable, structured files (ZIP/Markdown) containing the translated action items.
 
 ## Task List
-*(See `tasks/todo.md` for detailed acceptance criteria and verification steps)*
+*(See [`todo.md`](todo.md) for detailed acceptance criteria and verification steps)*
 
 ### Phase 1: Foundation & Auth (Vertical Slice 1)
-- [ ] Task 1: Initialize Docker Compose Environment
-- [ ] Task 2: Database Schema & API for Local Auth
-- [ ] Task 3: Frontend Auth UI & Protected Routing
+- [x] Task 1: Initialize Docker Compose Environment
+- [x] Task 2: Database Schema & API for Local Auth
+- [x] Task 3: Frontend Auth UI & Protected Routing
 
 ### Checkpoint: Foundation
-- [ ] `docker-compose up` works cleanly
-- [ ] User can log in and view a protected placeholder dashboard
+- [x] `docker-compose up` works cleanly
+- [x] User can log in and view a protected placeholder dashboard
 
 ### Phase 2: Project Management & Gate 1 (Vertical Slice 2)
-- [ ] Task 4: Database Schema & API for Project Management
-- [ ] Task 5: Frontend Project Dashboard
-- [ ] Task 6: Gate 1 Schema Validation API (Business Requirements)
-- [ ] Task 7: Frontend Gate 1 Authoring UI
+- [x] Task 4: Database Schema & API for Project Management
+- [x] Task 5: Frontend Project Dashboard
+- [x] Task 6: Gate 1 Schema Validation API (Business Requirements)
+- [x] Task 7: Frontend Gate 1 Authoring UI
 
 ### Checkpoint: Core Engine
-- [ ] User can create a project
-- [ ] User can submit Gate 1 requirements and pass deterministic validation
+- [x] User can create a project
+- [x] User can submit Gate 1 requirements and pass deterministic validation
 
 ### Phase 3: Technical Gates (Vertical Slice 3)
-- [ ] Task 8: Gate 2 Validation API (Data Dictionary)
-- [ ] Task 9: Frontend Gate 2 Authoring UI
-- [ ] Task 10: Gate 3 Validation API (User Stories)
-- [ ] Task 11: Frontend Gate 3 Authoring UI
+- [x] Task 8: Gate 2 Validation API (Data Dictionary)
+- [x] Task 9: Frontend Gate 2 Authoring UI
+- [x] Task 10: Gate 3 Validation API (User Stories)
+- [x] Task 11: Frontend Gate 3 Authoring UI
 
 ### Phase 4: Traceability & Sign-off (Vertical Slice 4)
-- [ ] Task 12: Traceability Validation API (RTM Logic)
-- [ ] Task 13: Frontend Traceability View
-- [ ] Task 14: Cryptographic Sign-off API
-- [ ] Task 15: Frontend Sign-off UI
+- [x] Task 12: Traceability Validation API (RTM Logic)
+- [x] Task 13: Frontend Traceability View
+- [x] Task 14: Cryptographic Sign-off API
+- [x] Task 15: Frontend Sign-off UI
 
 ### Phase 5: Export Engine (Vertical Slice 5)
-- [ ] Task 16: Export Engine API (ZIP/Markdown Generator)
-- [ ] Task 17: Frontend Export Trigger UI
+- [x] Task 16: Export Engine API (ZIP/Markdown Generator)
+- [x] Task 17: Frontend Export Trigger UI
 
 ### Checkpoint: Complete MVP
-- [ ] End-to-end flow from Gate 1 to Baseline Export works locally.
+- [x] End-to-end flow from Gate 1 to Baseline Export works locally.
 
 ### Phase 6: Project Team & Dynamic RBAC (Vertical Slice 6)
-- [ ] Task 18: Project Members Schema & API
-- [ ] Task 19: Backend Gate Authorization (Project-Level)
-- [ ] Task 20: Frontend Team Management UI
-- [ ] Task 21: Frontend Gate RBAC UI Adaptation
-- [ ] Task 22: Dynamic Multi-Signature Sign-off
+- [x] Task 18: Project Members Schema & API
+- [x] Task 19: Backend Gate Authorization (Project-Level)
+- [x] Task 20: Frontend Team Management UI
+- [x] Task 21: Frontend Gate RBAC UI Adaptation
+- [x] Task 22: Dynamic Multi-Signature Sign-off
 
 ### Checkpoint: Enterprise Project Teams
-- [ ] Users have strict, project-specific ownership boundaries.
-- [ ] Data is viewable by all, but editable only by assigned owners.
-- [ ] Multi-sig consensus dynamically adapts to the size of the project team.
+- [x] Users have strict, project-specific ownership boundaries.
+- [x] Data is viewable by all, but editable only by assigned owners.
+- [x] Multi-sig consensus dynamically adapts to the size of the project team.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

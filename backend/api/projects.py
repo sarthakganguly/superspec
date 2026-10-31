@@ -50,7 +50,11 @@ def get_projects(
     """
     Retrieve all accessible projects.
     """
-    projects = db.query(Project).offset(skip).limit(limit).all()
+    if current_user.role == "ADMIN":
+        projects = db.query(Project).offset(skip).limit(limit).all()
+    else:
+        from models.project import ProjectMember
+        projects = db.query(Project).join(ProjectMember).filter(ProjectMember.user_id == current_user.id).offset(skip).limit(limit).all()
     return projects
 
 @router.get("/{project_id}", response_model=ProjectResponse)
@@ -62,7 +66,15 @@ def get_project(
     """
     Get a specific project by ID.
     """
-    project = db.query(Project).filter(Project.id == project_id).first()
+    if current_user.role == "ADMIN":
+        project = db.query(Project).filter(Project.id == project_id).first()
+    else:
+        from models.project import ProjectMember
+        project = db.query(Project).join(ProjectMember).filter(
+            Project.id == project_id,
+            ProjectMember.user_id == current_user.id
+        ).first()
+        
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
@@ -71,11 +83,14 @@ from schemas.project import ProjectMemberCreate, ProjectMemberResponse
 from models.project import ProjectMember
 from sqlalchemy.exc import IntegrityError
 
+from api.auth import RequireProjectRole
+
 @router.get("/{project_id}/members", response_model=List[ProjectMemberResponse])
 def get_project_members(
     project_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole())
 ):
     """
     Get all members of a project.
@@ -106,9 +121,10 @@ def add_project_member(
     member_in: ProjectMemberCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole(["PROJECT_ADMIN"]))
 ):
     """
-    Add a new member to a project.
+    Add a new member to a project. Requires PROJECT_ADMIN.
     """
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
@@ -147,9 +163,10 @@ def remove_project_member(
     user_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole(["PROJECT_ADMIN"]))
 ):
     """
-    Remove a member from a project.
+    Remove a member from a project. Requires PROJECT_ADMIN.
     """
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:

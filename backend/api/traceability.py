@@ -5,7 +5,7 @@ from uuid import UUID
 from database import get_db
 from models.project import Project, Artifact
 from models.user import User
-from api.auth import get_current_user
+from api.auth import get_current_user, RequireProjectRole
 from services.traceability import analyze_traceability
 
 router = APIRouter()
@@ -15,6 +15,7 @@ def get_traceability_report(
     project_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole()),
 ):
     """
     Generate the Requirements Traceability Matrix report.

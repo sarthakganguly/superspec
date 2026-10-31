@@ -22,9 +22,9 @@ SuperSpec's core philosophy is **cryptographic consensus**: before requirements 
    ```bash
    docker compose up --build
    ```
-3. The frontend will be available at `http://localhost:5173`.
-4. The backend API will be available at `http://localhost:8000`.
-5. API documentation (Swagger UI) is available at `http://localhost:8000/docs`.
+3. The frontend will be available at `http://localhost:3002`.
+4. The backend API will be available at `http://localhost:8002`.
+5. API documentation (Swagger UI) is available at `http://localhost:8002/docs`.
 
 ### Seed Data
 The application will automatically run migrations and seed the database on startup.
@@ -37,7 +37,7 @@ You can log in with the following default credentials:
 | Command | Description |
 |---------|-------------|
 | `docker compose up` | Start the application stack |
-| `docker compose exec backend pytest` | Run backend test suite |
+| `docker compose exec backend python -m pytest` | Run backend test suite |
 | `docker compose exec backend alembic revision --autogenerate -m "..."` | Generate a new DB migration |
 | `docker compose exec frontend npm run build` | Build the frontend (typechecks via tsc) |
 
@@ -47,11 +47,18 @@ SuperSpec is built on a modern, decoupled architecture:
 - **Backend**: Python, FastAPI, SQLAlchemy, PostgreSQL
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS
 
-### Key Design Decisions
-See our Architecture Decision Records (ADRs) for context on major technical choices:
+### Documentation
+For full technical specifications, requirements, architecture decisions, and roadmaps, see the [Documentation Index](docs/README.md).
+
+### Key Design Decisions & Specifications
+See our Architecture Decision Records (ADRs) and data contracts:
+- [Documentation Index](docs/README.md)
+- [Gate Schemas & Data Contract Specification](docs/specifications/gate-schemas.md)
 - [ADR-001: Architecture Stack (FastAPI, React, PostgreSQL)](docs/decisions/0001-architecture-stack.md)
 - [ADR-002: Traceability and Cryptographic Sign-offs](docs/decisions/0002-traceability-signoffs.md)
 - [ADR-003: Project Team RBAC Architecture](docs/decisions/0003-project-team-rbac.md)
+- [ADR-004: In-Memory Action Items ZIP & Markdown Export Engine](docs/decisions/0004-action-items-export-engine.md)
+- [ADR-005: Deterministic Bi-Directional Traceability Matrix Engine](docs/decisions/0005-deterministic-traceability-engine.md)
 
 ## Contributing
 1. Ensure all new logic is covered by Pytest (backend) or validated in the frontend.

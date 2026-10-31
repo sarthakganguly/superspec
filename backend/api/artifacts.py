@@ -120,6 +120,7 @@ def get_artifact(
     artifact_type: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(RequireProjectRole()),
 ):
     """
     Get a specific artifact by project and type.
